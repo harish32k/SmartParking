@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<androidx.cardview.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+
+    <!--android:background="@drawable/border"-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/border"
+        >
+
+        <ImageView
+            android:id="@+id/hist_imageView"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="21dp"
+            android:layout_marginBottom="19dp"
+            app:srcCompat="@drawable/available" />
+
+        <TextView
+            android:id="@+id/hist_slotView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/hist_imageView"
+            android:fontFamily="sans-serif-medium"
+            android:text="Slot no 1"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/hist_vehicleView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/hist_slotView"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Car parking"
+            android:textColor="#424242"
+            android:textSize="18sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/hist_detailView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/hist_slotView"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_toRightOf="@id/hist_imageView"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light"
+            android:maxLines="3"
+            android:text="Parking area A, Slot no 1, KPHB Phase 6 Road,
+            Near medical shop, Forum mall lane, landmark: super market 123456. Parking only available in the mornings
+            Light cars only allowed" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
