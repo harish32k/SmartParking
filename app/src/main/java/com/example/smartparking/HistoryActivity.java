@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -39,6 +42,8 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar historyProgressBar;
+    private RelativeLayout historyUnavailableView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +56,11 @@ public class HistoryActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.hist_swipeLayout);
 
         uid = 1;
+
+        historyUnavailableView = findViewById(R.id.historyUnavailable);
+        historyUnavailableView.setVisibility(View.GONE);
+        historyProgressBar = findViewById(R.id.historyProgressBar);
+        historyProgressBar.setVisibility(View.VISIBLE);
         getHistory();
 
 
@@ -100,13 +110,24 @@ public class HistoryActivity extends AppCompatActivity {
                         }
                 );
 
+
+        int MY_SOCKET_TIMEOUT_MS=15000;
+
+        myJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         queue.add(myJsonArrayRequest);
     }
 
     public void populateRecyclerView() {
 
+        historyProgressBar.setVisibility(View.GONE);
         historyAdapter = new HistoryAdapter(HistoryActivity.this, myList);
         historyRecyclerView.setAdapter(historyAdapter);
+        if(myList.size() == 0) historyUnavailableView.setVisibility(View.VISIBLE);
+
         HistoryActivity thisContext = this;
         historyAdapter.setOnItemClickListener(new HistoryAdapter.OnItemClickListener() {
             @Override
@@ -162,6 +183,13 @@ public class HistoryActivity extends AppCompatActivity {
                                 error.printStackTrace();
                             }
                         });
+
+                int MY_SOCKET_TIMEOUT_MS=15000;
+
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        MY_SOCKET_TIMEOUT_MS,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 queue.add(jsonObjectRequest);
 
             }
@@ -202,6 +230,7 @@ public class HistoryActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(JSONArray response) {
                                     try {
+                                        historyUnavailableView.setVisibility(View.GONE);
                                         myList.clear();
                                         for (int i = 0; i < response.length(); i++) {
                                             JSONObject jsonObject = response.getJSONObject(i);
@@ -224,6 +253,12 @@ public class HistoryActivity extends AppCompatActivity {
                                 }
                             }
                     );
+            int MY_SOCKET_TIMEOUT_MS=15000;
+
+            myJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    MY_SOCKET_TIMEOUT_MS,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
 
             queue.add(myJsonArrayRequest);
@@ -232,7 +267,13 @@ public class HistoryActivity extends AppCompatActivity {
         public void updateRecyclerView() {
             historyAdapter.notifyDataSetChanged();
             swipeRefreshLayout.setRefreshing(false);
+
+            if(myList.size() == 0) {
+                historyUnavailableView.setVisibility(View.VISIBLE);
+            }
         }
+
+
     }
 
 }

@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,13 +40,20 @@ public class BookmarksActivity extends AppCompatActivity {
     private HistoryItem historyItem;
     private RecyclerView historyRecyclerView;
     private HistoryAdapter historyAdapter;
+    private ProgressBar bookmarksProgressBar;
+    private RelativeLayout bookmarksUnavailableView;
 
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmarks);
 
+        bookmarksUnavailableView = findViewById(R.id.bookmarksUnavailable);
+        bookmarksUnavailableView.setVisibility(View.GONE);
+        bookmarksProgressBar = findViewById(R.id.bookmarksProgressBar);
+        bookmarksProgressBar.setVisibility(View.VISIBLE);
         historyRecyclerView = findViewById(R.id.book_recyclerView);
         historyRecyclerView.setHasFixedSize(true);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -75,6 +85,7 @@ public class BookmarksActivity extends AppCompatActivity {
                         new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
+
                                 try {
                                     for (int i = 0; i < response.length(); i++) {
                                         JSONObject jsonObject = response.getJSONObject(i);
@@ -97,14 +108,27 @@ public class BookmarksActivity extends AppCompatActivity {
                         }
                 );
 
+
+        int MY_SOCKET_TIMEOUT_MS=15000;
+
+        myJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         queue.add(myJsonArrayRequest);
     }
 
     public void populateRecyclerView() {
 
+        bookmarksProgressBar.setVisibility(View.GONE);
         BookmarksActivity thisContext = this;
         historyAdapter = new HistoryAdapter(thisContext, myList);
         historyRecyclerView.setAdapter(historyAdapter);
+
+        if(myList.size() == 0) {
+            bookmarksUnavailableView.setVisibility(View.VISIBLE);
+        }
         historyAdapter.setOnItemClickListener(new HistoryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -157,6 +181,13 @@ public class BookmarksActivity extends AppCompatActivity {
                                 error.printStackTrace();
                             }
                         });
+
+                int MY_SOCKET_TIMEOUT_MS=15000;
+
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        MY_SOCKET_TIMEOUT_MS,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 queue.add(jsonObjectRequest);
             }
         });
@@ -194,7 +225,9 @@ public class BookmarksActivity extends AppCompatActivity {
                             new Response.Listener<JSONArray>() {
                                 @Override
                                 public void onResponse(JSONArray response) {
+
                                     try {
+                                        bookmarksUnavailableView.setVisibility(View.GONE);
                                         myList.clear();
                                         for (int i = 0; i < response.length(); i++) {
                                             JSONObject jsonObject = response.getJSONObject(i);
@@ -207,6 +240,7 @@ public class BookmarksActivity extends AppCompatActivity {
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
+
                                 }
                             },
                             new Response.ErrorListener() {
@@ -219,12 +253,23 @@ public class BookmarksActivity extends AppCompatActivity {
                     );
 
 
+            int MY_SOCKET_TIMEOUT_MS=15000;
+
+            myJsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    MY_SOCKET_TIMEOUT_MS,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
             queue.add(myJsonArrayRequest);
         }
 
         public void updateRecyclerView() {
             historyAdapter.notifyDataSetChanged();
             swipeRefreshLayout.setRefreshing(false);
+
+            if(myList.size() == 0) {
+                bookmarksUnavailableView.setVisibility(View.VISIBLE);
+            }
         }
     }
 
